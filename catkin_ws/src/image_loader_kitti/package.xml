@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>image_loader_kitti</name>
+  <version>0.0.1</version>
+  <description>This package is a template.</description>
+  <maintainer email="driverless.division@firenzerace.it">FRT Driverless Division</maintainer>
+
+  <license>WTFPL</license>
+  <!-- Here is an example of dependencies you can include, they have to be the same as "setup.py" and "CMakeLists.txt" -->
+  <buildtool_depend>catkin</buildtool_depend> <!-- This dependency is mandatory for all packages -->
+  
+  <build_depend>std_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>image_transport</build_depend>
+  <exec_depend>image_transport</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <export></export>
+</package>

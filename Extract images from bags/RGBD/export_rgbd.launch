@@ -1,0 +1,9 @@
+<launch>
+   2   <node pkg="rosbag" type="play" name="rosbag" required="true" args="/media/DATA/20221128_Depth_IMU_LABSTRAIGHT.bag"/>
+   3   <node name="extract" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen" cwd="ROS_HOME">
+   4     <remap from="image" to="/camera/color/image_raw"/>
+   5   </node>
+   	<node name="extract_depth" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen" cwd="ROS_HOME">
+   4     <remap from="image" to="/camera/aligned_depth_to_color/image_raw"/>
+   5   </node>
+   6 </launch>

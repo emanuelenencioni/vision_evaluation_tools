@@ -1,0 +1,7 @@
+camera_model: 'ZED2i'
+focal_length: 2.12 # in mm
+is_for_meshroom: true # meshroom use jpeg images
+frame_interval: 5
+left_camera_topic: /zed2i/zed_node/left/image_rect_color
+right_camera_topic: /zed2i/zed_node/right/image_rect_color
+save_folder_name: images

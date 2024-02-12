@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+ 
+<arg name="input_topic" 		default="/orb_slam3/camera_pose"/>
+<arg name="json_path" 		default="$(find get_traj)/traj_os3.json"/>
+<node name="get_traj" pkg="get_traj" type="main.py" clear_params="true" output="screen">
+ 
+
+  <param name="input_topic" type="string" value="$(arg input_topic)"/>
+  <param name="json_path" type="string" value="$(arg json_path)"/>
+  </node>
+
+</launch>

@@ -1,0 +1,6 @@
+<launch>
+    <arg name="sequence"        default="00"/>
+   	<node name="load_image" pkg="image_loader_kitti" type="image_loader_kitti_node" respawn="false" output="screen">
+         <param name="path_to_sequence" type="string" value="/home/emanuele/kitti_dataset/dataset/sequences/$(arg sequence)"/>
+      </node>
+    </launch>

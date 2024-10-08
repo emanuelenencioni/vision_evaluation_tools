@@ -14,7 +14,7 @@ For all the scripts, there is the `requirements.txt` file.
 # Guide
 ### Extracting images
 For extract images from any bag, see the corresponding folder. There is separated script for stereo and RGBD cameras.
-#### Stereo
+#### StereoDownload odometry data set (velodyne laser data, 80 GB)
 For stereo camera I have also included a `YAML` configuration file . This file is useful to pass all the various parameters:
 - **camera_model**
 - **focal_length**
@@ -29,3 +29,9 @@ I didn't have time to test and I don't remember. I believe the script for saving
 TODO
 ### SFM evaluation
 TODO
+
+
+# TOD0's
+- [ ] Finish write README
+- [ ] Add node for publish kitti's lidar data
+- [ ] Clean the code

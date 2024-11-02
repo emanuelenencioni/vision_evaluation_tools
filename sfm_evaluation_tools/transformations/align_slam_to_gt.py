@@ -11,7 +11,7 @@ import json
 import sys
 import math
 import matplotlib.pyplot as plt
-import sophus as sp
+import sophuspy as sp
 from collections import Counter
 import matplotlib
 import matplotlib.pyplot as plt
@@ -20,7 +20,6 @@ from matplotlib.patches import Ellipse
 
 def align(model,data):
     """Align two trajectories using the method of Horn (closed-form).
-    
     Input:
     model -- first trajectory (3xn)
     data -- second trajectory (3xn)
@@ -30,8 +29,6 @@ def align(model,data):
     trans -- translation vector (3x1)
     trans_error -- translational error per point (1xn)
     """
-    
-
     np.set_printoptions(precision=3,suppress=True)
     model_zerocentered = model - model.mean(1)
     data_zerocentered = data - data.mean(1)
@@ -39,13 +36,13 @@ def align(model,data):
     W = np.zeros( (3,3) )
     for column in range(model.shape[1]):
         W += np.outer(model_zerocentered[:,column],data_zerocentered[:,column])
+    
     U,d,Vh = np.linalg.linalg.svd(W.transpose())
     S = np.matrix(np.identity( 3 ))
-    if(np.linalg.det(U) * np.linalg.det(Vh)<0):
-        S[2,2] = -1
+    if(np.linalg.det(U) * np.linalg.det(Vh)<0): S[2,2] = -1
     rot = U*S*Vh
 
-    rotmodel = rot*model_zerocentered
+    rotmodel = rot*model_zerocentered 
     dots = 0.0
     norms = 0.0
 
@@ -76,16 +73,12 @@ def extract_path(sfm):
     return path[0 : len(path) - len(x[len(x)-1])]
 
 def plot_traj(ax,traj,style,color,label):
-    """
-    Plot a trajectory using matplotlib. 
-    
-    Input:
+    """ Plot a trajectory using matplotlib. 
     ax -- the plot
     traj -- trajectory (3xn)
     style -- line style
     color -- line color
     label -- plot legend
-    
     """
     ax.scatter(traj[0],traj[2],traj[1], style,color=color,label=label)
 
@@ -95,7 +88,6 @@ def save_sfm_like_kitti(poses, filename):
             line = f"{poses[i].A[0].astype(list)[0]} {poses[i].A[0].astype(list)[1]} {poses[i].A[0].astype(list)[2]} {poses[i].A[0].astype(list)[3]} {poses[i].A[1].astype(list)[0]} {poses[i].A[1].astype(list)[1]} {poses[i].A[1].astype(list)[2]} {poses[i].A[1].astype(list)[3]} {poses[i].A[2].astype(list)[0]} {poses[i].A[2].astype(list)[1]} {poses[i].A[2].astype(list)[2]} {poses[i].A[2].astype(list)[3]} "
             f.write(line + "\n")
 
-
 def save_sfm_like_kitti_p(poses, filename):
     with open (filename, "w") as f:
         for p in poses:
@@ -103,18 +95,13 @@ def save_sfm_like_kitti_p(poses, filename):
             t = p.translation()
             f.write( f"{rot[0][0]} {rot[0][1]}  {rot[0][2]} {t[0]} {rot[1][0]} {rot[1][1]}  {rot[1][2]} {t[1]} {rot[2][0]} {rot[2][1]}  {rot[2][2]} {t[2]} \n")
 
-
-
-
 if __name__ == "__main__":
-    if not (len(sys.argv) == 4 or len(sys.argv) == 5):
-        sys.exit("usage: align_slam_to_gt.py path_to_slam_file path_to_sfm_file number_of_poses [True/False suppress Graphs]")
+    assert len(sys.argv) in [4, 5], "usage: align_slam_to_gt.py path_to_slam_file path_to_sfm_file number_of_poses [True/False suppress Graphs]"
 
     suppress_graph = False
     if len(sys.argv) == 5:
         suppress_graph = bool(sys.argv[4])
-        if isinstance(suppress_graph, bool):
-            sys.exit("Please, insert correct arguments")
+        assert isinstance(suppress_graph, bool) == True, "Please, insert correct arguments"
 
     # Extracting SLAM poses
     slam_positions = []
@@ -131,8 +118,7 @@ if __name__ == "__main__":
     # Extracting GT (SFM) Poses
     with open(sys.argv[2], "r") as f:
         x = json.loads(f.read())
-        if x == None:
-            sys.exit("GT file not accessible or not found")
+        assert x is not None, "GT file not accessible or not found"
         
     poses = x["poses"]
     images = x["views"]
@@ -144,8 +130,7 @@ if __name__ == "__main__":
     gt_rotations = []
 
     number_of_poses = int(sys.argv[3])
-    if not isinstance(number_of_poses, int):
-        sys.exit("Please, insert correct arguments")
+    assert isinstance(number_of_poses, int) == True, "Please, insert correct arguments"
 
     for i in range(0, number_of_poses):
         for im in images:
@@ -153,7 +138,6 @@ if __name__ == "__main__":
                 poseId = im["poseId"]
                 poses_id.append(poseId)
                 for j in range(len(poses)):
-                    
                     if poseId == poses[j]["poseId"]:
                         counter+=1
                         gt_positions.append([float(poses[j]["pose"]["transform"]["center"][0]), float(poses[j]["pose"]["transform"]["center"][1]), float(poses[j]["pose"]["transform"]["center"][2])])
@@ -162,14 +146,12 @@ if __name__ == "__main__":
                                                 [float(poses[j]["pose"]["transform"]["rotation"][2]), float(poses[j]["pose"]["transform"]["rotation"][5]), float(poses[j]["pose"]["transform"]["rotation"][8])]])
                         break
 
-
-    if gt_positions == []:
-        sys.exit("Ground Truth data is empty")
+    print(gt_positions)
+    assert len(gt_positions) > 0, "Ground Truth data is empty"
 
     print(len(gt_positions))
     print("poses:" + str(len(poses)))
     print("views:" + str(len(images)))
-
 
     # using numpy matrices and transpose.
     gt_positions_t = np.matrix(gt_positions).transpose()
@@ -235,7 +217,6 @@ if __name__ == "__main__":
 
 
     #More plots
-    
     if not suppress_graph:
         fig = plt.figure()
         ax = fig.add_subplot(111, projection ='3d')

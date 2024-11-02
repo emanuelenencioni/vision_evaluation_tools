@@ -51,7 +51,7 @@ def align(model,data):
         normi = np.linalg.norm(model_zerocentered[:,column])
         norms += normi*normi
 
-    s = float(dots/norms)    
+    s = dots.item()/norms.item()    
     
     transGT = data.mean(1) - s*rot * model.mean(1)
     trans = data.mean(1) - rot * model.mean(1)
@@ -96,18 +96,21 @@ def save_sfm_like_kitti_p(poses, filename):
             f.write( f"{rot[0][0]} {rot[0][1]}  {rot[0][2]} {t[0]} {rot[1][0]} {rot[1][1]}  {rot[1][2]} {t[1]} {rot[2][0]} {rot[2][1]}  {rot[2][2]} {t[2]} \n")
 
 if __name__ == "__main__":
-    assert len(sys.argv) in [4, 5], "usage: align_slam_to_gt.py path_to_slam_file path_to_sfm_file number_of_poses [True/False suppress Graphs]"
+    assert len(sys.argv) in [3, 4], "usage: align_slam_to_gt.py path_to_slam_file path_to_sfm_file [True/False suppress Graphs]"
 
     suppress_graph = False
-    if len(sys.argv) == 5:
-        suppress_graph = bool(sys.argv[4])
-        assert isinstance(suppress_graph, bool) == True, "Please, insert correct arguments"
+    if len(sys.argv) == 4: 
+        if sys.argv[3] in ['false', 'n', '0', 'False', 'no', 'No', 'NO']: suppress_graph = False
+        elif sys.argv[3] in ['true', 'y', '1', 'True', 'yes', 'Yes', 'YES']: suppress_graph = True
 
+    print(suppress_graph)
     # Extracting SLAM poses
     slam_positions = []
     slam_poses = []
+    number_of_poses = 0
     with open(sys.argv[1], "r") as f:
         for line in f:
+            number_of_poses += 1
             vec = line.split(" ")
             slam_positions.append([float(vec[3]), float(vec[7]), float(vec[11])])
             slam_poses.append([[float(vec[0]), float(vec[1]), float(vec[2]),float(vec[3])],
@@ -129,7 +132,7 @@ if __name__ == "__main__":
     counter = 0
     gt_rotations = []
 
-    number_of_poses = int(sys.argv[3])
+    #number_of_poses = int(sys.argv[3])
     assert isinstance(number_of_poses, int) == True, "Please, insert correct arguments"
 
     for i in range(0, number_of_poses):
@@ -146,7 +149,6 @@ if __name__ == "__main__":
                                                 [float(poses[j]["pose"]["transform"]["rotation"][2]), float(poses[j]["pose"]["transform"]["rotation"][5]), float(poses[j]["pose"]["transform"]["rotation"][8])]])
                         break
 
-    print(gt_positions)
     assert len(gt_positions) > 0, "Ground Truth data is empty"
 
     print(len(gt_positions))
@@ -169,9 +171,10 @@ if __name__ == "__main__":
         plot_traj(ax,gt_positions_scaled.A,'-',"blue","Ground Truth")
         ax.legend()
         plt.show()
-
-    print(trans)
-    print(rot)
+    print("alignment tranformations: ")
+    print(f"translation vector: {trans}")
+    print(f" rotation matrix: {rot}")
+    print(f"scale: {scale} \n")
     print("compared_pose_pairs %d pairs"%(len(trans_error)))
     print("absolute_translational_error.rmse %f m"%np.sqrt(np.dot(trans_error,trans_error) / len(trans_error)))
     print("absolute_translational_error.mean %f m"%np.mean(trans_error))
@@ -180,12 +183,10 @@ if __name__ == "__main__":
     print( "absolute_translational_error.min %f m"%np.min(trans_error))
     print( "absolute_translational_error.max %f m"%np.max(trans_error))
     print( "max idx: %i" %np.argmax(trans_error))
-    print(f"scale: {scale}")
-
 
     rot,transGT,trans_errorGT,trans,trans_error, scale =  align(slam_positions_t,gt_positions_scaled)
     print()
-    print("final alignment")
+    print("final alignment after scaling")
     print("------------------------------------------")
     print("compared_pose_pairs %d pairs"%(len(trans_error)))
     print("absolute_translational_error.rmse %f m"%np.sqrt(np.dot(trans_error,trans_error) / len(trans_error)))

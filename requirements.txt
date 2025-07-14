@@ -8,3 +8,6 @@ matplotlib==3.7.3
 sophuspy==1.2.0
 rosbag==1.16.0
 cv_bridge==1.16.2
+rosbags==0.9.23
+rosbags-images==0.9.2
+argparse==1.4.0

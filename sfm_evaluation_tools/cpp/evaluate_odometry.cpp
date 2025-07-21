@@ -130,7 +130,7 @@ void saveSequenceErrors (vector<errors> &err,string file_name) {
   // open file  
   FILE *fp;
   fp = fopen(file_name.c_str(),"w");
- 
+
   // write to file
   for (vector<errors>::iterator it=err.begin(); it!=err.end(); it++)
     fprintf(fp,"%d %f %f %f %f\n",it->first_frame,it->r_err,it->t_err,it->len,it->speed);
@@ -146,7 +146,7 @@ void savePathPlot (vector<Matrix> &poses_gt,vector<Matrix> &poses_result,string 
 
   // open file  
   FILE *fp = fopen(file_name.c_str(),"w");
- 
+
   // save x/z coordinates of all frames to file
   for (int32_t i=0; i<poses_gt.size(); i+=step_size)
     fprintf(fp,"%f %f %f %f\n",poses_gt[i].val[0][3],poses_gt[i].val[2][3],
@@ -182,12 +182,27 @@ vector<int32_t> computeRoi (vector<Matrix> &poses_gt,vector<Matrix> &poses_resul
   float mx = 0.5*(x_max+x_min);
   float mz = 0.5*(z_max+z_min);
   float r  = 0.5*max(dx,dz);
-  
+  std::cout<<"r: "<<r<<std::endl;
+  std::cout<<mx-r<<std::endl;
+  std::cout<<mx+r<<std::endl;
+  int32_t x_low = (int32_t)(mx-r);
+  int32_t x_up = (int32_t)(mx+r);
+  if(x_low == x_up){
+    x_low--;
+    x_up++;
+  }
+
+  int32_t z_low = (int32_t)(mz-r);
+  int32_t z_up = (int32_t)(mz+r);
+  if(z_low == z_up){
+    z_low--;
+    z_up++;
+  }
   vector<int32_t> roi;
-  roi.push_back((int32_t)(mx-r));
-  roi.push_back((int32_t)(mx+r));
-  roi.push_back((int32_t)(mz-r));
-  roi.push_back((int32_t)(mz+r));
+  roi.push_back(x_low);
+  roi.push_back(x_up);
+  roi.push_back(z_low);
+  roi.push_back(z_up);
   return roi;
 }
 
@@ -426,6 +441,7 @@ bool eval (string result_sha,Mail* mail, string file_name) {
     // read ground truth and result poses
     vector<Matrix> poses_gt     = loadPoses(gt_dir + "/" + file_name);
     vector<Matrix> poses_result = loadPoses(result_dir + "/data/" + file_name);
+    cout<<file_name<<endl;
 
     // plot status
     mail->msg("Processing: %s, poses: %d/%d",file_name,poses_result.size(),poses_gt.size());

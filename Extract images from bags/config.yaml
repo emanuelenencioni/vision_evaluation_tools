@@ -2,7 +2,7 @@
 camera_model: 'webcam'
 focal_length: 2.12 # in mm
 is_for_meshroom: true # meshroom use jpeg images
-frame_interval: 0
+frame_interval: 5
 camera_topic: /image_raw
 camer_info: /camera_info
 save_folder_name: images

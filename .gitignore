@@ -1,1 +1,6 @@
 images/
+__pycache__/
+sfm_evaluation_tools/cpp/results/*
+*.txt
+*.csv
+*.sfm

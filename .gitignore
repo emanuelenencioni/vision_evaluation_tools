@@ -4,3 +4,4 @@ sfm_evaluation_tools/cpp/results/*
 *.txt
 *.csv
 *.sfm
+.vscode

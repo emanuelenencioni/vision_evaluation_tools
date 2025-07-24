@@ -6,7 +6,7 @@ This repositories need `gnuplot`, `pdfcrop` installing respectively with:
 ```sudo apt-get install gnuplot```
 ```sudo apt-get install texlive-extra-utils```.
 
-To build the kitti tool for evaluation, run `buils.sh`.
+To build the kitti tool for evaluation, run `build.sh`.
 
 # Python dependeces
 For all the scripts, there is the `requirements.txt` file.

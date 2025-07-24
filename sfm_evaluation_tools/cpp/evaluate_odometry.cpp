@@ -11,7 +11,7 @@ using namespace std;
 
 // static parameter
 // float lengths[] = {5,10,50,100,150,200,250,300,350,400};
-float lengths[] = {5, 10, 20, 30, 40, 50, 75, 100, 150, 200};
+float lengths[] = {0.2,0.5,1,2,3,4, 5, 10, 20, 30, 40, 50, 75, 100, 150, 200};
 int32_t num_lengths = 10;
 
 struct errors {
@@ -84,17 +84,17 @@ vector<errors> calcSequenceErrors (vector<Matrix> &poses_gt,vector<Matrix> &pose
   vector<errors> err;
 
   // parameters
-  int32_t step_size = 10; // every second
+  int32_t step_size = 5; 
   
   // pre-compute distances (from ground truth as reference)
   vector<float> dist = trajectoryDistances(poses_gt);
- 
+  cout<<"dist.size(): "<<dist.size()<<endl;
   // for all start positions do
   for (int32_t first_frame=0; first_frame<poses_gt.size(); first_frame+=step_size) {
-  
+    cout<<"first_frame: "<<first_frame<<endl;
     // for all segment lengths do
     for (int32_t i=0; i<num_lengths; i++) {
-    
+      cout<<"length: "<<lengths[i]<<endl;
       // current length
       float len = lengths[i];
       
@@ -115,7 +115,7 @@ vector<errors> calcSequenceErrors (vector<Matrix> &poses_gt,vector<Matrix> &pose
       // compute speed
       float num_frames = (float)(last_frame-first_frame+1);
       float speed = len/(0.1*num_frames);
-      
+      cout<<"first_frame: "<<first_frame<<", last_frame: "<<last_frame<<", len: "<<len<<", speed: "<<speed<<endl;
       // write to file
       err.push_back(errors(first_frame,r_err/len,t_err/len,len,speed));
     }
@@ -268,7 +268,7 @@ void saveErrorPlots(vector<errors> &seq_err,string plot_error_dir,char* prefix) 
   FILE *fp_rl = fopen(file_name_rl,"w");
   FILE *fp_ts = fopen(file_name_ts,"w");
   FILE *fp_rs = fopen(file_name_rs,"w");
- 
+  cout<<"num lengths: "<<num_lengths<<endl;
   // for each segment length do
   for (int32_t i=0; i<num_lengths; i++) {
 

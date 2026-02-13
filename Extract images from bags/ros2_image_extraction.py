@@ -34,7 +34,7 @@ if __name__ == "__main__":
             print(connection.topic, connection.msgtype)
         i = 0
         for connection, timestamp, rawdata in tqdm(reader.messages(), total=reader.message_count, desc="Extracting images"):
-            if connection.topic == '/zed/zed_node/left_raw/image_raw_color': # topic Name of images
+            if connection.topic == config['frame_id']: # topic Name of images
                 if i % stride != 0: 
                     i+= 1
                     continue

@@ -1,3 +1,4 @@
+# Only for ros 2                                                                                                                                                                                                                             camera_model: 'webcam' focal_length: 1.478776925766505 # in mm is_for_meshroom: true # meshroom use jpeg images frame_interval: 1 camera_topic: /image_raw camer_info: /camera_info save_folder_name: images
 # Only for ros 2
 camera_model: 'webcam'
 focal_length: 2.12 # in mm

@@ -1,4 +1,5 @@
 from rosbags.highlevel import AnyReader
+from rosbags.typesys import get_typestore, Stores
 from pathlib import Path
 import cv2
 from rosbags.image import message_to_cvimage
@@ -27,14 +28,18 @@ if __name__ == "__main__":
     save_path = dir_path + config['save_folder_name'] +"/"
     if not os.path.isdir(save_path): os.makedirs(save_path)
 
+    # Create a typestore with ROS2 Humble message definitions
+    typestore = get_typestore(Stores.ROS2_HUMBLE)
+
     print(sys.argv[1])
-    with AnyReader([Path(sys.argv[1])]) as reader:
+    bag_path = Path(sys.argv[1]).resolve()  # Convert to absolute path
+    with AnyReader([bag_path], default_typestore=typestore) as reader:
         # topic and msgtype information is available on .connections list
         for connection in reader.connections:
             print(connection.topic, connection.msgtype)
         i = 0
         for connection, timestamp, rawdata in tqdm(reader.messages(), total=reader.message_count, desc="Extracting images"):
-            if connection.topic == '/zed/zed_node/left_raw/image_raw_color': # topic Name of images
+            if connection.topic == config['camera_topic']: # topic Name of images
                 if i % stride != 0: 
                     i+= 1
                     continue

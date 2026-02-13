@@ -123,16 +123,16 @@ def read_rtk_gps_bag(bag_path: str, rtk_topic: str, gps_topic: str, typestore: T
                 print(f"Reading RTK messages from '{rtk_topic}'...")
                 for connection, timestamp_ns, rawdata in reader.messages(connections=rtk_connections):
                     msg = reader.deserialize(rawdata, connection.msgtype)
-                    # Note: relpos* fields are in millimeters, acc* fields are in millimeters
+                    # Note: relpos* fields are in centimeters, acc* fields are in centimeters
                     rtk_data.append({
                         'timestamp_ns': timestamp_ns,
                         'timestamp_sec': float(timestamp_ns) / 1e9,
-                        'relposn': msg.relposn.data / 1000.0,  # Convert mm -> m (North)
-                        'relpose': msg.relpose.data / 1000.0,  # Convert mm -> m (East)
-                        'relposd': msg.relposd.data / 1000.0,  # Convert mm -> m (Down)
-                        'accn': msg.accn.data / 1000.0,  # Convert mm -> m
-                        'acce': msg.acce.data / 1000.0,  # Convert mm -> m
-                        'accd': msg.accd.data / 1000.0,  # Convert mm -> m
+                        'relposn': msg.relposn.data / 100.0,  # Convert cm -> m (North)
+                        'relpose': msg.relpose.data / 100.0,  # Convert cm -> m (East)
+                        'relposd': msg.relposd.data / 100.0,  # Convert cm -> m (Down)
+                        'accn': msg.accn.data / 100.0,  # Convert cm -> m
+                        'acce': msg.acce.data / 100.0,  # Convert cm -> m
+                        'accd': msg.accd.data / 100.0,  # Convert cm -> m
                         'veln': msg.veln.data,
                         'vele': msg.vele.data,
                         'veld': msg.veld.data,

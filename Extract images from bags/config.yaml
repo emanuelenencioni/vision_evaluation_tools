@@ -1,8 +1,14 @@
+# Only for ros 2                                                                                                                                                                                                                             camera_model: 'webcam' focal_length: 1.478776925766505 # in mm is_for_meshroom: true # meshroom use jpeg images frame_interval: 1 camera_topic: /image_raw camer_info: /camera_info save_folder_name: images
 # Only for ros 2
 camera_model: 'zed2i'
 focal_length: 2.12 # in mm
 is_for_meshroom: true # meshroom use jpeg images
 frame_interval: 5
+<<<<<<< HEAD
 camera_topic: /zed/zed_node/left/color/raw/image
 camer_info: /zed/zed_node/left/color/raw/image/camera_info
+=======
+camera_topic: /image_raw
+camer_info: /camera_info
+>>>>>>> 744a491f834fd670f45eeccb165c6d0d5a45a3a0
 save_folder_name: images

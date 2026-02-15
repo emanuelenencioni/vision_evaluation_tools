@@ -10,6 +10,7 @@ The .sfm file is a JSON format containing pose information, views (images), and 
 import json
 import sys
 import csv
+import re
 import numpy as np
 from pathlib import Path
 
@@ -50,13 +51,36 @@ def extract_sfm_poses_to_csv(sfm_file_path: str, output_csv_path: str) -> None:
 
     print(f"Found {len(poses)} poses and {len(views)} views in SfM file")
 
+    # Sort views by image filename so that the first frame (e.g. frame0000.jpg)
+    # is truly the first entry. AliceVision .sfm files do NOT guarantee ordering
+    # by frame number -- views are often stored by internal viewId.
+    def _sort_key(view):
+        """Extract a numeric sort key from the image filename.
+
+        Handles common patterns like frame0000.jpg, IMG_0001.png, 00042.exr.
+        Falls back to lexicographic sort on the full filename.
+        """
+        path = view.get("path", "")
+        filename = Path(path).stem  # e.g. "frame0042"
+        # Try to extract trailing digits (covers frame0042, IMG_0001, 00042, etc.)
+        match = re.search(r"(\d+)$", filename)
+        if match:
+            return int(match.group(1))
+        return filename  # lexicographic fallback
+
+    views_sorted = sorted(views, key=_sort_key)
+
+    first_view_path = Path(views_sorted[0].get("path", "")).name
+    last_view_path = Path(views_sorted[-1].get("path", "")).name
+    print(f"Views sorted by filename: first={first_view_path}, last={last_view_path}")
+
     # Create a mapping from poseId to pose data
     pose_by_id = {pose["poseId"]: pose for pose in poses}
 
-    # Extract trajectory data: collect poses in view order
+    # Extract trajectory data: collect poses in sorted view order
     trajectory_data = []
 
-    for view_idx, view in enumerate(views):
+    for view_idx, view in enumerate(views_sorted):
         pose_id = view.get("poseId")
 
         if pose_id is None or pose_id not in pose_by_id:
@@ -76,11 +100,15 @@ def extract_sfm_poses_to_csv(sfm_file_path: str, output_csv_path: str) -> None:
         # Flatten the rotation matrix to 9 elements
         rot_matrix_flat = rotation_matrix.flatten().tolist()
 
-        # Use view index as timestamp (or could use view path)
+        # Use sorted view index as timestamp
         timestamp = float(view_idx)
 
-        # Create the data row: [timestamp, x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33]
-        row_data = [timestamp, x, y, z] + rot_matrix_flat
+        # Store the image filename for traceability
+        image_path = view.get("path", "")
+        image_name = Path(image_path).name
+
+        # Create the data row: [timestamp, x, y, z, r11..r33, image_name]
+        row_data = [timestamp, x, y, z] + rot_matrix_flat + [image_name]
 
         trajectory_data.append(row_data)
 
@@ -108,6 +136,7 @@ def extract_sfm_poses_to_csv(sfm_file_path: str, output_csv_path: str) -> None:
                 "r31",
                 "r32",
                 "r33",
+                "image_name",
             ]
             writer.writerow(header)
             # Write all data rows

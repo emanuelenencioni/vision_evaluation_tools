@@ -147,3 +147,43 @@ pip install -r requirements.txt
 - The code focuses on pose/trajectory transformation and alignment accuracy
 - ROS 1/2 compatibility: some scripts use ROS bags (rosbag) with ROS 1 format
 - Tests are typically manual; verify outputs visually with matplotlib plots
+
+---
+
+## Git Commit Workflow
+
+**IMPORTANT: Agents MUST always ask user approval before committing code.**
+
+### Commit Procedure
+1. **Make code changes** using the Edit/Write tools
+2. **Before committing:**
+   - Show the user a summary of what changed
+   - Display the relevant code sections that will be committed
+   - Ask for explicit approval: "Ready to commit. Approve? (yes/no)"
+3. **Only after user approval:**
+   - Run `git add` for modified files
+   - Create the commit with a clear message
+   - Verify success with `git status`
+
+### Why User Review is Required
+- Code review catches issues before they're committed
+- User can request changes or suggest improvements
+- Prevents unintended modifications from being versioned
+- Maintains code quality and project history
+
+### Example Workflow
+```
+Agent: "I've updated rtk_sfm_alignment.py to add command-line arguments.
+
+Here's what changed:
+- Added argparse for CLI parameters
+- New --vis flag for interactive visualization
+- New --output-dir option for custom output location
+
+Ready to commit? [yes/no]"
+
+User: "yes"
+
+Agent: [Then commits with message and shows result]
+```
+

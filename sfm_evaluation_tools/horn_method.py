@@ -95,6 +95,80 @@ def horn_method(p1: np.ndarray, p2: np.ndarray):
     return R, t
 
 
+def horn_method_with_scale(p1: np.ndarray, p2: np.ndarray):
+    """
+    Applies Horn's method with Umeyama's scale estimation to find the optimal
+    similarity transformation (rotation + translation + uniform scale) between
+    two sets of corresponding 3D points.
+
+    Solves: p2 = s * R @ p1 + t
+
+    Reference: Umeyama, "Least-Squares Estimation of Transformation Parameters
+    Between Two Point Patterns", IEEE PAMI 1991.
+
+    Args:
+        p1 (np.ndarray): Source points, shape (N, 3). Will be scaled.
+        p2 (np.ndarray): Target points, shape (N, 3). Reference scale.
+
+    Returns:
+        np.ndarray: The 3x3 rotation matrix R.
+        np.ndarray: The 3x1 translation vector t.
+        float: The uniform scale factor s.
+    """
+    assert len(p1) == len(p2), f"Point sets must have equal length, got {len(p1)} and {len(p2)}"
+    assert len(p1) >= 3, f"Need at least 3 point pairs, got {len(p1)}"
+
+    # 1. Compute centroids
+    centroid1 = np.mean(p1, axis=0)
+    centroid2 = np.mean(p2, axis=0)
+
+    # 2. Center the points
+    p1_centered = p1 - centroid1
+    p2_centered = p2 - centroid2
+
+    # 3. Compute variance of source points (for scale estimation)
+    variance_p1 = np.mean(np.sum(p1_centered ** 2, axis=1))
+
+    # 4. Compute covariance matrix H and find rotation via SVD
+    #    (SVD is more numerically stable than the quaternion eigenvector approach
+    #     when scale is involved)
+    H = p1_centered.T @ p2_centered / len(p1)
+
+    U, S, Vt = np.linalg.svd(H)
+
+    # Handle reflection case: ensure proper rotation (det(R) = +1)
+    d = np.linalg.det(Vt.T @ U.T)
+    sign_matrix = np.diag([1.0, 1.0, np.sign(d)])
+
+    R = Vt.T @ sign_matrix @ U.T
+
+    # 5. Compute scale (Umeyama formula)
+    #    s = trace(S * sign_matrix) / variance_p1
+    scale = np.trace(np.diag(S) @ sign_matrix) / variance_p1
+
+    # 6. Compute translation: t = centroid2 - s * R @ centroid1
+    t = centroid2 - scale * R @ centroid1
+
+    return R, t, scale
+
+
+def compute_path_length(positions: np.ndarray) -> float:
+    """
+    Compute total path length of a trajectory (sum of consecutive segment lengths).
+
+    Args:
+        positions (np.ndarray): Ordered positions, shape (N, 3).
+
+    Returns:
+        float: Total path length in the same units as positions.
+    """
+    if len(positions) < 2:
+        return 0.0
+    segments = np.diff(positions, axis=0)
+    segment_lengths = np.linalg.norm(segments, axis=1)
+    return float(np.sum(segment_lengths))
+
+
 def register_point_clouds(source_points: np.ndarray, target_points: np.ndarray):
     """
     A complete registration pipeline for two point clouds of potentially
